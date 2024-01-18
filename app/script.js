@@ -1,73 +1,55 @@
-import React, {useState, useMemo, useEffect} from 'react';
-import {render} from 'react-dom';
+import React, { useState, useEffect } from 'react';
+import { render } from 'react-dom';
 
 const App = () => {
     const [status, setStatus] = useState('off');
     const [time, setTime] = useState(0);
-    const [timer, setTimer] = useState(null);
 
-    const formatTime = useMemo(() => {
-        const minutes = Math.floor(time / 60);
-        const seconds = time % 60;
+    useEffect(() => {
+        let interval = null;
 
-        return [minutes, seconds].map(v => v < 10 ? `0${v}` : v).join(':');
-    }, [time]);
+        const playBell = () => {
+            const bell = new Audio('./sounds/bell.wav');
+            bell.play();
+        };
 
-    const playBell = () => {
-        const bell = new Audio('./sounds/bell.wav');
-        bell.play();
-    };
-
-    const startTimer = () => {
-
-        if (timer) {
-            clearInterval(timer);
+        if (status !== 'off') {
+            interval = setInterval(() => {
+                setTime(time => {
+                    if (time - 1 === 0) {
+                        playBell();
+                        const nextStatus = status === 'work' ? 'rest' : 'work';
+                        const nextTime = nextStatus === 'work' ? 1200 : 20;
+                        setStatus(nextStatus);
+                        return nextTime;
+                    }
+                    return time - 1;
+                });
+            }, 1000);
         }
 
+        return () => clearInterval(interval);
+    }, [status, time]);
 
+    const startTimer = () => {
         setTime(1200);
         setStatus('work');
-
-        setTimer(setInterval(() => {
-            setTime(time => {
-                if (time - 1 === 0) {
-                    playBell();
-
-
-                    setStatus(prevStatus => {
-                        const nextStatus = prevStatus === 'work' ? 'rest' : 'work';
-                        const nextTime = nextStatus === 'work' ? 1200 : 20;
-                        setTime(nextTime);
-                        return nextStatus;
-                    });
-                    return time;
-                }
-                return time - 1;
-            });
-        }, 1000));
     };
 
     const stopTimer = () => {
-
-        clearInterval(timer);
-        setTimer(null);
-
-
-        setTime(0);
         setStatus('off');
+        setTime(0);
     };
 
     const closeApp = () => {
         window.close();
     };
 
-    useEffect(() => {
-        return () => {
-            if (timer) {
-                clearInterval(timer);
-            }
-        };
-    }, [timer]);
+    const formatTime = () => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return [minutes, seconds].map(v => v < 10 ? `0${v}` : v).join(':');
+    };
 
     return (
         <div>
@@ -83,7 +65,7 @@ const App = () => {
             {status === 'rest' && <img src="./images/Rest.png" alt="man who's resting"/>}
             {status !== 'off' && (
                 <div className="timer">
-                    {formatTime}
+                    {formatTime()}
                 </div>
             )}
             {status === 'off' && <button className="btn" onClick={startTimer}>Start</button>}
