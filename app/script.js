@@ -4,39 +4,34 @@ import { render } from 'react-dom';
 const App = () => {
     const [status, setStatus] = useState('off');
     const [time, setTime] = useState(0);
+    const [intervalId, setIntervalId] = useState(null);
 
     useEffect(() => {
-        let interval = null;
-
-        const playBell = () => {
-            const bell = new Audio('./sounds/bell.wav');
-            bell.play();
-        };
-
-        if (status !== 'off') {
-            interval = setInterval(() => {
-                setTime(time => {
-                    if (time - 1 === 0) {
-                        playBell();
-                        const nextStatus = status === 'work' ? 'rest' : 'work';
-                        const nextTime = nextStatus === 'work' ? 1200 : 20;
-                        setStatus(nextStatus);
-                        return nextTime;
-                    }
-                    return time - 1;
-                });
-            }, 1000);
+        if (time === 0 && status !== 'off') {
+            playBell();
+            const nextStatus = status === 'work' ? 'rest' : 'work';
+            const nextTime = nextStatus === 'work' ? 1200 : 20;
+            setStatus(nextStatus);
+            setTime(nextTime);
         }
+    }, [time, status]);
 
-        return () => clearInterval(interval);
-    }, [status, time]);
+    const playBell = () => {
+        const bell = new Audio('./sounds/bell.wav');
+        bell.play();
+    };
 
     const startTimer = () => {
-        setTime(1200);
         setStatus('work');
+        setTime(1200);
+        const interval = setInterval(() => {
+            setTime(time => time - 1);
+        }, 1000);
+        setIntervalId(interval);
     };
 
     const stopTimer = () => {
+        clearInterval(intervalId);
         setStatus('off');
         setTime(0);
     };
