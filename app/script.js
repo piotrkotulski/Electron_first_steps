@@ -16,6 +16,12 @@ const App = () => {
         }
     }, [time, status]);
 
+    useEffect(() => {
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [intervalId]);
+
     const playBell = () => {
         const bell = new Audio('./sounds/bell.wav');
         bell.play();
@@ -23,7 +29,7 @@ const App = () => {
 
     const startTimer = () => {
         setStatus('work');
-        setTime(1200);
+        setTime(12);
         const interval = setInterval(() => {
             setTime(time => time - 1);
         }, 1000);
