@@ -29,7 +29,7 @@ const App = () => {
 
     const startTimer = () => {
         setStatus('work');
-        setTime(12);
+        setTime(1200);
         const interval = setInterval(() => {
             setTime(time => time - 1);
         }, 1000);
