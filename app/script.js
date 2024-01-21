@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { render } from 'react-dom';
+import React, {useState, useEffect} from 'react';
+import {render} from 'react-dom';
 
 const App = () => {
     const [status, setStatus] = useState('off');
